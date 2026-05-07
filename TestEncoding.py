@@ -1,2 +1,3 @@
-with open(r"C:\Users\nadia\Downloads\LibreHardwareMonitorLog-2026-05-07.csv", 'rb') as f:
-    print(f.read(50))
+from pathlib import Path
+for f in Path.home().rglob("LibreHardwareMonitorLog-2026-05-07*.csv"):
+    print(f)

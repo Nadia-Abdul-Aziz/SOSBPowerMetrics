@@ -2,10 +2,20 @@ import time
 import csv
 from pathlib import Path
 
-LOG_FILE = r"C:\Users\nadia\Downloads\LibreHardwareMonitorLog-2026-05-07.csv"
+def find_log():
+    dirs = [
+        Path.home() / "Downloads",
+        Path.home() / "Downloads" / "LibreHardwareMonitor"
+    ]
+    logs = []
+    for d in dirs:
+        logs.extend(d.glob("LibreHardwareMonitorLog-*.csv"))
+    return sorted(logs)[-1] if logs else None
 
 def get_temps():
-    path = Path(LOG_FILE)
+    path = find_log()
+    if not path:
+        return None
     with open(path, newline='', encoding='latin-1') as f:
         rows = list(csv.reader(f))
     if len(rows) < 3:
@@ -31,7 +41,7 @@ def main():
         print("Temperature:")
         if temps:
             for name, temp in temps:
-                print(f"CPU Core : {temp}°C")
+                print(f"CPU Core: {temp}°C")
         else:
             print("  No temp data")
         print("\nRefreshing in 3 seconds...\n" + "-" * 40)
