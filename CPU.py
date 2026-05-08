@@ -12,11 +12,25 @@ def find_log():
         logs.extend(d.glob("LibreHardwareMonitorLog-*.csv"))
     return sorted(logs)[-1] if logs else None
 
+def get_encoding(path):
+    with open(path, 'rb') as f:
+        raw = f.read(1000)
+    for enc in ['utf-8', 'latin-1', 'utf-16']:
+        try:
+            raw.decode(enc)
+            return enc
+        except UnicodeDecodeError:
+            continue
+    return None
+
 def get_temps():
     path = find_log()
     if not path:
         return None
-    with open(path, newline='', encoding='latin-1') as f:
+    encoding = get_encoding(path)
+    if not encoding:
+        return None
+    with open(path, newline='', encoding=encoding) as f:
         rows = list(csv.reader(f))
     if len(rows) < 3:
         return None
