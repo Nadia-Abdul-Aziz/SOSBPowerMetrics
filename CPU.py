@@ -1,51 +1,20 @@
 import time
-import csv
-from pathlib import Path
-
-def find_log():
-    dirs = [
-        Path.home() / "Downloads",
-        Path.home() / "Downloads" / "LibreHardwareMonitor"
-    ]
-    logs = []
-    for d in dirs:
-        logs.extend(d.glob("LibreHardwareMonitorLog-*.csv"))
-    return sorted(logs)[-1] if logs else None
-
-def get_encoding(path):
-    with open(path, 'rb') as f:
-        raw = f.read(1000)
-    for enc in ['utf-8', 'latin-1', 'utf-16']:
-        try:
-            raw.decode(enc)
-            return enc
-        except UnicodeDecodeError:
-            continue
-    return None
+import clr
+clr.AddReference(r"C:\Users\nadia\Documents\GitHub\SOSBPowerMetrics\librehardwaremonitorlib.0.9.6\runtimes\win-x64\lib\netstandard2.0\LibreHardwareMonitorLib.dll")
+clr.AddReference(r"C:\Users\nadia\Documents\GitHub\SOSBPowerMetrics\system.memory.4.6.3/lib/netstandard2.0/System.Memory.dll")
+from LibreHardwareMonitor.Hardware import Computer
 
 def get_temps():
-    path = find_log()
-    if not path:
-        return None
-    encoding = get_encoding(path)
-    if not encoding:
-        return None
-    with open(path, newline='', encoding=encoding) as f:
-        rows = list(csv.reader(f))
-    if len(rows) < 3:
-        return None
+    c = Computer()
+    c.IsCpuEnabled = True
+    c.Open()
     results = []
-    for typ, header, value in zip(rows[0], rows[1], rows[-1]):
-        if "temperature" not in typ.strip().lower() or "core (tctl" not in header.strip().lower():
-            continue
-        if value.strip() in ("", "0"):
-            continue
-        try:
-            reading = float(value)
-        except ValueError:
-            continue
-        if reading > 0:
-            results.append((header.strip(), round(reading, 1)))
+    for hardware in c.Hardware:
+        hardware.Update()
+        for sensor in hardware.Sensors:
+            if sensor.SensorType.ToString() == "Temperature" and sensor.Value is not None:
+                results.append((sensor.Name, round(float(sensor.Value), 1)))
+    c.Close()
     return results or None
 
 def main():
@@ -55,7 +24,7 @@ def main():
         print("Temperature:")
         if temps:
             for name, temp in temps:
-                print(f"CPU Core: {temp}°C")
+                print(f"  {name}: {temp}°C")
         else:
             print("  No temp data")
         print("\nRefreshing in 3 seconds...\n" + "-" * 40)
