@@ -24,10 +24,10 @@ class Program
         Computer computer = new Computer
 {
     IsCpuEnabled = true,
-    IsGpuEnabled = true,
+    // IsGpuEnabled = true,
     // IsMemoryEnabled = true,
-    IsMotherboardEnabled = true,
-    IsControllerEnabled = true
+    // IsMotherboardEnabled = true,
+    // IsControllerEnabled = true,
     // IsNetworkEnabled = true,
     // IsStorageEnabled = true
 };
@@ -37,54 +37,16 @@ class Program
         while (true)
         {
             computer.Accept(new UpdateVisitor());
-            Console.WriteLine("Temperature:");
+            Console.WriteLine("CPU");
             foreach (var hardware in computer.Hardware)
             {
                 hardware.Update();
                 foreach (var sensor in hardware.Sensors)
                 {
-                    //cpu
-           bool gpuTempPrinted = false;
-bool gpuPowerPrinted = false;
-
-foreach (var hardware in computer.Hardware)
-{
-    hardware.Update();
-    foreach (var sensor in hardware.Sensors)
-    {
-        if (hardware.HardwareType == HardwareType.Cpu)
-        {
-            if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue && sensor.Name.Contains("Core"))
-                Console.WriteLine($" CPU Core: {Math.Round(sensor.Value.Value, 1)}°C");
-
-            if (sensor.SensorType == SensorType.Power && sensor.Value.HasValue && sensor.Name.Contains("Package"))
-                Console.WriteLine($" CPU Package: {Math.Round(sensor.Value.Value, 1)}W");
-        }
-
-        if (hardware.HardwareType == HardwareType.GpuNvidia || hardware.HardwareType == HardwareType.GpuAmd)
-        {
-            if (!gpuTempPrinted && sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue && sensor.Name.Contains("GPU Core"))
-            {
-                Console.WriteLine($" GPU Core: {Math.Round(sensor.Value.Value, 1)}°C");
-                gpuTempPrinted = true;
-            }
-
-            if (!gpuPowerPrinted && sensor.SensorType == SensorType.Power && sensor.Value.HasValue && sensor.Name.Contains("GPU Package"))
-            {
-                Console.WriteLine($" GPU Package: {Math.Round(sensor.Value.Value, 1)}W");
-                gpuPowerPrinted = true;
-            }
-        }
-    }
-}
-
-
-                    //  if (sensor.SensorType == SensorType.Power && sensor.Value.HasValue && sensor.Name.Contains("System"))
-                    // {
-                    //     Console.WriteLine($" System Power: {Math.Round(sensor.Value.Value, 1)}W");
-                    // }
-
-
+                    if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue && sensor.Name.Contains("Core"))
+                    {
+                        Console.WriteLine($"Temperature: {Math.Round(sensor.Value.Value, 1)}°C");
+                    }
                     //{sensor.Name} instead of text
                 }
             }
@@ -95,7 +57,6 @@ foreach (var hardware in computer.Hardware)
         computer.Close();
     }
 }
-
 
 /* full sample code 
 
