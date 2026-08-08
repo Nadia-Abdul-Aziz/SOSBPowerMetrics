@@ -1,8 +1,6 @@
 using System;
 using System.Threading;
 using System.Net;
-// using System.Net.Sockets;
-// using System.Text;
 using LibreHardwareMonitor.Hardware;
 using SharpOSC;
 
@@ -24,8 +22,6 @@ class Program
     static void Main()
     {
         var sender = new UDPSender("127.0.0.1", 7000);
-        // UdpClient udp = new UdpClient();
-        // IPEndPoint endpoint = new IPEndPoint(IPAddress.Loopback, 7000);
 
         Console.WriteLine("CPU Temp (Ctrl+C to stop)\n");
 
@@ -58,23 +54,18 @@ class Program
                             if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue && sensor.Name == "Temperature #1")
                                 Console.WriteLine($" Temp: {Math.Round(sensor.Value.Value, 1)}°C");
 
+                            // GPU fan removed from here - it's read from the actual GPU hardware below instead
                             if (sensor.SensorType == SensorType.Fan && sensor.Value.HasValue)
                             {
                                 string label = sensor.Name switch
                                 {
                                     "Fan #1" => "CPUFan",
-                                    "Fan #2" => "GPUFan",
                                     "Fan #3" => "CaseFanA",
                                     "Fan #5" => "CaseFanB",
                                     _ => sensor.Name
                                 };
                                 Console.WriteLine($" {label}: {Math.Round(sensor.Value.Value, 0)}RPM");
                                 sender.Send(new OscMessage($"/fan/{label}", (float)sensor.Value.Value));
-
-                                // as udp!!
-                                // string msg = $"{label} {Math.Round(sensor.Value.Value, 0)}";
-                                // byte[] bytes = Encoding.UTF8.GetBytes(msg);
-                                // udp.Send(bytes, bytes.Length, endpoint);
                             }
                         }
                     }
@@ -109,8 +100,12 @@ class Program
                         if (sensor.SensorType == SensorType.Power && sensor.Value.HasValue && sensor.Name.Contains("Package"))
                             Console.WriteLine($" Package: {Math.Round(sensor.Value.Value, 1)}W");
 
+                        // Actual GPU fan sensor - the real reading, now sent over OSC too
                         if (sensor.SensorType == SensorType.Fan && sensor.Value.HasValue)
+                        {
                             Console.WriteLine($" {sensor.Name}: {Math.Round(sensor.Value.Value, 0)}RPM");
+                            sender.Send(new OscMessage($"/fan/GPUFan", (float)sensor.Value.Value));
+                        }
                     }
                 }
             }
