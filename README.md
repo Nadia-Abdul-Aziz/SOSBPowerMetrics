@@ -2,8 +2,12 @@
 
 A python-based power metric tool developped for Windows 
 
-## Libraries:
+## Need to download before using
 
-- PSUTIL
-  
-- WMI
+- LibreHardware
+
+- SharpOSC
+
+- .NET
+
+RUN AS ADMINISTRATOR
