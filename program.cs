@@ -22,42 +22,90 @@ class Program
         Console.WriteLine("CPU Temp (Ctrl+C to stop)\n");
 
         Computer computer = new Computer
-{
-    IsCpuEnabled = true,
-    // IsGpuEnabled = true,
-    // IsMemoryEnabled = true,
-    // IsMotherboardEnabled = true,
-    // IsControllerEnabled = true,
-    // IsNetworkEnabled = true,
-    // IsStorageEnabled = true
-};
+        {
+            IsCpuEnabled = true,
+            IsGpuEnabled = true,
+            IsMotherboardEnabled = true,
+        };
 
         computer.Open();
 
         while (true)
         {
+            bool gpuSkipped = false;
             computer.Accept(new UpdateVisitor());
-            Console.WriteLine("CPU");
+
             foreach (var hardware in computer.Hardware)
             {
                 hardware.Update();
-                foreach (var sensor in hardware.Sensors)
+
+                if (hardware.HardwareType == HardwareType.Motherboard)
                 {
-                    if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue && sensor.Name.Contains("Core"))
+                    Console.WriteLine("Motherboard");
+                    foreach (var sub in hardware.SubHardware)
                     {
-                        Console.WriteLine($"Temperature: {Math.Round(sensor.Value.Value, 1)}°C");
+                        sub.Update();
+                        foreach (var sensor in sub.Sensors)
+                        {
+                            if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue && sensor.Name == "Temperature #1")
+                                Console.WriteLine($" Temp: {Math.Round(sensor.Value.Value, 1)}°C");
+
+                            if (sensor.SensorType == SensorType.Fan && sensor.Value.HasValue)
+                            {
+                                string label = sensor.Name switch
+                                {
+                                    "Fan #1" => "CPU Fan",
+                                    "Fan #2" => "GPU Fan",
+                                    "Fan #3" => "Case Fan A",
+                                    "Fan #5" => "Case Fan B",
+                                    _ => sensor.Name
+                                };
+                                Console.WriteLine($" {label}: {Math.Round(sensor.Value.Value, 0)}RPM");
+                            }
+                        }
                     }
-                    //{sensor.Name} instead of text
+                }
+
+                if (hardware.HardwareType == HardwareType.Cpu)
+                {
+                    Console.WriteLine("CPU");
+                    foreach (var sensor in hardware.Sensors)
+                    {
+                        if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue && sensor.Name.Contains("Tctl"))
+                            Console.WriteLine($" Temperature: {Math.Round(sensor.Value.Value, 1)}°C");
+
+                        if (sensor.SensorType == SensorType.Power && sensor.Value.HasValue && sensor.Name.Contains("Package"))
+                            Console.WriteLine($" Package: {Math.Round(sensor.Value.Value, 1)}W");
+                    }
+                }
+
+                if (hardware.HardwareType == HardwareType.GpuNvidia || hardware.HardwareType == HardwareType.GpuAmd)
+                {
+                    if (!gpuSkipped)
+                    {
+                        gpuSkipped = true;
+                        continue;
+                    }
+                    Console.WriteLine("GPU");
+                    foreach (var sensor in hardware.Sensors)
+                    {
+                        if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue && sensor.Name.Contains("Core"))
+                            Console.WriteLine($" Temperature: {Math.Round(sensor.Value.Value, 1)}°C");
+
+                        if (sensor.SensorType == SensorType.Power && sensor.Value.HasValue && sensor.Name.Contains("Package"))
+                            Console.WriteLine($" Package: {Math.Round(sensor.Value.Value, 1)}W");
+
+                        if (sensor.SensorType == SensorType.Fan && sensor.Value.HasValue)
+                            Console.WriteLine($" {sensor.Name}: {Math.Round(sensor.Value.Value, 0)}RPM");
+                    }
                 }
             }
+
             Console.WriteLine("\nRefreshing in 3 seconds...\n" + new string('-', 40));
             Thread.Sleep(3000);
         }
-
-        computer.Close();
     }
 }
-
 /* full sample code 
 
 Computer computer = new Computer
