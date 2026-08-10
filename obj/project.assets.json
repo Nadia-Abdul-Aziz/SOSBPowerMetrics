@@ -155,6 +155,19 @@
           }
         }
       },
+      "NvAPIWrapper.Net/0.8.1.101": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/NvAPIWrapper.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/NvAPIWrapper.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "RAMSPDToolkit-NDD/1.4.2": {
         "type": "package",
         "dependencies": {
@@ -1542,6 +1555,23 @@
         "runtimes/win-x86/native/libMonoPosixHelper.dll"
       ]
     },
+    "NvAPIWrapper.Net/0.8.1.101": {
+      "sha512": "qX+5EQ32tCTqBkX/9BNfx7w4HPi18s3XhMubjbxSjPhYQ6pXWL+HGnaZEmGvFlOxvsQN+/6eV3x5bRo1CDY/mQ==",
+      "type": "package",
+      "path": "nvapiwrapper.net/0.8.1.101",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "lib/net45/NvAPIWrapper.dll",
+        "lib/net45/NvAPIWrapper.xml",
+        "lib/netstandard2.0/NvAPIWrapper.dll",
+        "lib/netstandard2.0/NvAPIWrapper.xml",
+        "nvapiwrapper.net.0.8.1.101.nupkg.sha512",
+        "nvapiwrapper.net.nuspec",
+        "readme.txt"
+      ]
+    },
     "RAMSPDToolkit-NDD/1.4.2": {
       "sha512": "pqIwn/HqXFnW4FVKybq6gZh3YK14OOLGWkgZzDdewjAInCOu86EO2L+FCQo8j1/v1sKwv+vgX5pnehxyrlJYJw==",
       "type": "package",
@@ -2227,7 +2257,8 @@
   },
   "projectFileDependencyGroups": {
     "net10.0": [
-      "LibreHardwareMonitorLib >= 0.9.6"
+      "LibreHardwareMonitorLib >= 0.9.6",
+      "NvAPIWrapper.Net >= 0.8.1.101"
     ]
   },
   "packageFolders": {
@@ -2278,6 +2309,10 @@
           "LibreHardwareMonitorLib": {
             "target": "Package",
             "version": "[0.9.6, )"
+          },
+          "NvAPIWrapper.Net": {
+            "target": "Package",
+            "version": "[0.8.1.101, )"
           }
         },
         "imports": [

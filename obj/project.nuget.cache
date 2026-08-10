@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "Tzb8Rkl/mUU=",
+  "dgSpecHash": "N5Pgi9xUpAM=",
   "success": true,
   "projectFilePath": "C:\\Users\\Son of SunBlock\\Documents\\GitHub\\SOSBPowerMetrics\\progFiles.csproj",
   "expectedPackageFiles": [
@@ -9,6 +9,7 @@
     "C:\\Users\\Son of SunBlock\\.nuget\\packages\\hidsharp\\2.6.4\\hidsharp.2.6.4.nupkg.sha512",
     "C:\\Users\\Son of SunBlock\\.nuget\\packages\\librehardwaremonitorlib\\0.9.6\\librehardwaremonitorlib.0.9.6.nupkg.sha512",
     "C:\\Users\\Son of SunBlock\\.nuget\\packages\\mono.posix.netstandard\\1.0.0\\mono.posix.netstandard.1.0.0.nupkg.sha512",
+    "C:\\Users\\Son of SunBlock\\.nuget\\packages\\nvapiwrapper.net\\0.8.1.101\\nvapiwrapper.net.0.8.1.101.nupkg.sha512",
     "C:\\Users\\Son of SunBlock\\.nuget\\packages\\ramspdtoolkit-ndd\\1.4.2\\ramspdtoolkit-ndd.1.4.2.nupkg.sha512",
     "C:\\Users\\Son of SunBlock\\.nuget\\packages\\runtime.android-arm.runtime.native.system.io.ports\\10.0.3\\runtime.android-arm.runtime.native.system.io.ports.10.0.3.nupkg.sha512",
     "C:\\Users\\Son of SunBlock\\.nuget\\packages\\runtime.android-arm64.runtime.native.system.io.ports\\10.0.3\\runtime.android-arm64.runtime.native.system.io.ports.10.0.3.nupkg.sha512",

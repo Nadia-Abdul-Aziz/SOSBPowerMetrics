@@ -1,6 +1,8 @@
 using System;
 using System.Threading;
 using System.Net;
+using System.Collections.Generic;
+using System.IO;
 using LibreHardwareMonitor.Hardware;
 using SharpOSC;
 
@@ -19,9 +21,15 @@ public class UpdateVisitor : IVisitor
 
 class Program
 {
+    // variables in the class sections to be able to use in the functions for cleaner code
+    static float[,] valueTable = new float [20,4]; // to modify the timeframe of the average, modify the first size of the array
+    static int index = 0;
+    static int indexCSV = 0;
+
     static void Main()
     {
         var sender = new UDPSender("127.0.0.1", 7000);
+
 
         Console.WriteLine("CPU Temp (Ctrl+C to stop)\n");
 
@@ -39,6 +47,8 @@ class Program
         {
             bool gpuSkipped = false;
             computer.Accept(new UpdateVisitor());
+            int sensorIndex = 0;
+            float[] temporaryArrayRPM = new float[4];
 
             foreach (var hardware in computer.Hardware)
             {
@@ -68,8 +78,15 @@ class Program
                                     "Fan #5" => "CaseFanB",
                                     _ => sensor.Name
                                 };
-                                Console.WriteLine($" {label}: {Math.Round(sensor.Value.Value, 0)}RPM");
-                                sender.Send(new OscMessage($"/fan/{label}", (float)sensor.Value.Value));
+                                float fanValue = (float)sensor.Value.Value;
+                                if (sensorIndex%4 == 0){
+                                    sensorIndex = 0;
+                                }
+                                
+                                temporaryArrayRPM[sensorIndex] = fanValue;
+                                sensorIndex++;
+                                Console.WriteLine($" {label}: {Math.Round(fanValue, 0)}RPM");
+                                sender.Send(new OscMessage($"/fan/{label}", fanValue));
                             }
                         }
                     }
@@ -131,10 +148,63 @@ class Program
                     }
                 }
             }
+            //averages the values in the table when table is filled
+            if (index%valueTable.GetLength(0) == 0){
+                index=0;
+                writeValue(AverageValue());
+            }
+            //Console.WriteLine("table index: " + index);
+            FillTable(temporaryArrayRPM);
 
             Console.WriteLine("\nRefreshing in 250ms\n" + new string('-', 40));
             Thread.Sleep(250);
         }
+    }
+
+    static void FillTable(float[] tempArray){
+        for (int i=0; i<tempArray.Length; i++){
+            //Console.WriteLine("indexes are " + index + ", " + i);
+            valueTable[index,i] = tempArray[i];
+        }
+        index++;
+    }
+
+    static float[] AverageValue(){
+        float[] total = new float [4];
+        for (int i=0; i<total.Length; i++){
+            total[i] = 0;
+        }
+        for (int i=0; i<valueTable.GetLength(0); i++){
+            for (int j=0; j<valueTable.GetLength(1); j++){
+                total[j] += valueTable[i,j];
+            }
+        }
+        
+        for (int i=0; i<total.Length; i++){
+            //Console.WriteLine(total[i] + "/" + valueTable.GetLength(0) + "=" + total[i]/valueTable.GetLength(0));
+            total[i] = total[i]/valueTable.GetLength(0);
+        }
+        return total;
+    }
+
+    static void writeValue(float[] value){
+        string filePath = "averageFanRPM.csv";
+
+        var localTime = DateTime.Now;
+
+        // DateTime now = DateTime.Now;
+        // TimeSpan timeOfDay = date.TimeOfDay;
+        if (value[0] == 0){
+            return;
+        }
+
+        string[] items = {localTime.ToString(), value[0].ToString(), value[1].ToString(), value[2].ToString(), value[3].ToString()};
+        string line = string.Join(", ", items);
+
+        using (StreamWriter writer = new StreamWriter(filePath, true)){
+            writer.WriteLine(line);
+        }
+
     }
 }
 /* full sample code 

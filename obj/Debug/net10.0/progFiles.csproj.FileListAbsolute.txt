@@ -64,3 +64,4 @@ C:\Users\Son of SunBlock\Documents\GitHub\SOSBPowerMetrics\obj\Debug\net10.0\pro
 C:\Users\Son of SunBlock\Documents\GitHub\SOSBPowerMetrics\obj\Debug\net10.0\ref\progFiles.dll
 C:\Users\Son of SunBlock\Documents\GitHub\SOSBPowerMetrics\bin\Debug\net10.0\SharpOSC.dll
 C:\Users\Son of SunBlock\Documents\GitHub\SOSBPowerMetrics\bin\Debug\net10.0\SharpOSC.pdb
+C:\Users\Son of SunBlock\Documents\GitHub\SOSBPowerMetrics\bin\Debug\net10.0\NvAPIWrapper.dll

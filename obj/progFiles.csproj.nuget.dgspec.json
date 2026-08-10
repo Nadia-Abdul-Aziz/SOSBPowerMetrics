@@ -49,6 +49,10 @@
             "LibreHardwareMonitorLib": {
               "target": "Package",
               "version": "[0.9.6, )"
+            },
+            "NvAPIWrapper.Net": {
+              "target": "Package",
+              "version": "[0.8.1.101, )"
             }
           },
           "imports": [
