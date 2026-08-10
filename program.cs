@@ -30,6 +30,7 @@ class Program
             IsCpuEnabled = true,
             IsGpuEnabled = true,
             IsMotherboardEnabled = true,
+            IsMemoryEnabled = true,
         };
 
         computer.Open();
@@ -53,8 +54,11 @@ class Program
                         {
                             if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue && sensor.Name == "Temperature #1")
                                 Console.WriteLine($" Temp: {Math.Round(sensor.Value.Value, 1)}°C");
-
-                            // GPU fan removed from here - it's read from the actual GPU hardware below instead
+                            if (sensor.SensorType == SensorType.Voltage && sensor.Value.HasValue && sensor.Name.Contains("CMOS"))
+                            {
+                                Console.WriteLine($" CMOS Battery: {Math.Round(sensor.Value.Value, 3)}V");
+                                sender.Send(new OscMessage("/voltage/CMOS", (float)sensor.Value.Value));
+                            }
                             if (sensor.SensorType == SensorType.Fan && sensor.Value.HasValue)
                             {
                                 string label = sensor.Name switch
@@ -80,7 +84,10 @@ class Program
                             Console.WriteLine($" Temperature: {Math.Round(sensor.Value.Value, 1)}°C");
 
                         if (sensor.SensorType == SensorType.Power && sensor.Value.HasValue && sensor.Name.Contains("Package"))
+                        {
                             Console.WriteLine($" Package: {Math.Round(sensor.Value.Value, 1)}W");
+                            sender.Send(new OscMessage("/power/CPU", (float)sensor.Value.Value));
+                        }
                     }
                 }
 
@@ -98,13 +105,28 @@ class Program
                             Console.WriteLine($" Temperature: {Math.Round(sensor.Value.Value, 1)}°C");
 
                         if (sensor.SensorType == SensorType.Power && sensor.Value.HasValue && sensor.Name.Contains("Package"))
+                        {
                             Console.WriteLine($" Package: {Math.Round(sensor.Value.Value, 1)}W");
+                            sender.Send(new OscMessage("/power/GPU", (float)sensor.Value.Value));
+                        }
 
-                        // Actual GPU fan sensor - the real reading, now sent over OSC too
                         if (sensor.SensorType == SensorType.Fan && sensor.Value.HasValue)
                         {
                             Console.WriteLine($" {sensor.Name}: {Math.Round(sensor.Value.Value, 0)}RPM");
                             sender.Send(new OscMessage($"/fan/GPUFan", (float)sensor.Value.Value));
+                        }
+                    }
+                }
+
+                if (hardware.HardwareType == HardwareType.Memory)
+                {
+                    foreach (var sensor in hardware.Sensors)
+                    {
+                        if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue && sensor.Name.StartsWith("DIMM"))
+                        {
+                            string dimmLabel = sensor.Name.Replace(" ", ""); // "DIMM #1" -> "DIMM#1"
+                            Console.WriteLine($"{sensor.Name}: {Math.Round(sensor.Value.Value, 1)}°C");
+                            sender.Send(new OscMessage($"/ram/{dimmLabel}", (float)sensor.Value.Value));
                         }
                     }
                 }
