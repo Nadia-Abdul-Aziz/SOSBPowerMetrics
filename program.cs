@@ -22,9 +22,8 @@ public class UpdateVisitor : IVisitor
 class Program
 {
     // variables in the class sections to be able to use in the functions for cleaner code
-    static float[,] valueTable = new float [20,4]; // to modify the timeframe of the average, modify the first size of the array
+    static float[,] valueTable = new float [20,5]; // to modify the timeframe of the average, modify the first size of the array
     static int index = 0;
-    static int indexCSV = 0;
 
     static void Main()
     {
@@ -48,7 +47,7 @@ class Program
             bool gpuSkipped = false;
             computer.Accept(new UpdateVisitor());
             int sensorIndex = 0;
-            float[] temporaryArrayRPM = new float[4];
+            float[] temporaryArrayRPM = new float[valueTable.GetLength(1)];
 
             foreach (var hardware in computer.Hardware)
             {
@@ -79,7 +78,7 @@ class Program
                                     _ => sensor.Name
                                 };
                                 float fanValue = (float)sensor.Value.Value;
-                                if (sensorIndex%4 == 0){
+                                if (sensorIndex%valueTable.GetLength(1) == 0){
                                     sensorIndex = 0;
                                 }
                                 
@@ -131,6 +130,7 @@ class Program
                         {
                             Console.WriteLine($" {sensor.Name}: {Math.Round(sensor.Value.Value, 0)}RPM");
                             sender.Send(new OscMessage($"/fan/GPUFan", (float)sensor.Value.Value));
+                            temporaryArrayRPM[valueTable.GetLength(1) - 1] = sensor.Value.Value; // store GPU fan RPM in the last index of the temporary array
                         }
                     }
                 }
@@ -170,7 +170,7 @@ class Program
     }
 
     static float[] AverageValue(){
-        float[] total = new float [4];
+        float[] total = new float [valueTable.GetLength(1)];
         for (int i=0; i<total.Length; i++){
             total[i] = 0;
         }
@@ -198,7 +198,7 @@ class Program
             return;
         }
 
-        string[] items = {localTime.ToString(), value[0].ToString(), value[1].ToString(), value[2].ToString(), value[3].ToString()};
+        string[] items = {localTime.ToString(), value[0].ToString(), value[1].ToString(), value[2].ToString(), value[3].ToString(), value[4].ToString()};
         string line = string.Join(", ", items);
 
         using (StreamWriter writer = new StreamWriter(filePath, true)){
