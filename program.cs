@@ -23,12 +23,33 @@ class Program
 {
     // variables in the class sections to be able to use in the functions for cleaner code
     static float[,] valueTable = new float [20,5]; // to modify the timeframe of the average, modify the first size of the array
-    static int index = 0;
+    static int index = 0;   
+    Dictionary<string, float> _data = new Dictionary<string, float>{
+        {"CPU_Temp", -1.0f },
+        {"CPU_Fan", -1.0f },
+        {"CPU_Power", -1.0f },
+        
+        {"MOBO_Temp", -1.0f },
+        {"MOBO_CMOS", -1.0f },
+        
+        {"FAN0", -1.0f },
+        {"FAN1", -1.0f },
+        {"FAN2", -1.0f },
+        {"FAN3", -1.0f },
+        
+        {"GPU_Temp", -1.0f },
+        {"GPU_Fan", -1.0f },
+        {"GPU_Power", -1.0f },
+        
+        {"RAM0_TEMP", -1.0f },
+        {"RAM1_TEMP", -1.0f },
+        {"RAM2_TEMP", -1.0f },
+        {"RAM3_TEMP", -1.0f },
+        };
 
     static void Main()
     {
         var sender = new UDPSender("127.0.0.1", 7000);
-
 
         Console.WriteLine("CPU Temp (Ctrl+C to stop)\n");
 
@@ -42,7 +63,7 @@ class Program
 
         computer.Open();
 
-        while (true)
+        while (true) // fuck... 
         {
             bool gpuSkipped = false;
             computer.Accept(new UpdateVisitor());
@@ -62,7 +83,10 @@ class Program
                         foreach (var sensor in sub.Sensors)
                         {
                             if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue && sensor.Name == "Temperature #1")
-                                Console.WriteLine($" Temp: {Math.Round(sensor.Value.Value, 1)}°C");
+                                
+                                _data["MOBO_Temp"] = Math.Round(sensor.Value.Value, 1);
+
+                                // Console.WriteLine($" Temp: {Math.Round(sensor.Value.Value, 1)}°C");
                             if (sensor.SensorType == SensorType.Voltage && sensor.Value.HasValue && sensor.Name.Contains("CMOS"))
                             {
                                 Console.WriteLine($" CMOS Battery: {Math.Round(sensor.Value.Value, 3)}V");
@@ -155,6 +179,12 @@ class Program
             }
             //Console.WriteLine("table index: " + index);
             FillTable(temporaryArrayRPM);
+
+            // Broadcast
+            // 1. Convert the _data dict to a JSON 
+            // 2. broadcast over socket/http/etc. 
+
+
 
             Console.WriteLine("\nRefreshing in 250ms\n" + new string('-', 40));
             Thread.Sleep(250);
