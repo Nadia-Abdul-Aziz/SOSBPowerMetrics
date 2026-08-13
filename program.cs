@@ -8,6 +8,8 @@ class Program
     const int SamplesPerAverage = 20; // to modify the timeframe of the average, modify this
     const int FanColumns = 5;         // 4 motherboard fans + the GPU fan
     const string CsvPath = "averageFanRPM.csv";
+    const int WebSocketPort = 3707;      
+    const string WebSocketHost = "localhost"; // "+" accepts connections from the LAN (needs the admin rights this already runs with)
     const string CsvHeader = "Date and time, fan 1, fan 2, fan 3, fan 4, gpu fan";
 
     static bool running = true;
@@ -22,8 +24,10 @@ class Program
         var averager = new FanAverager(SamplesPerAverage, FanColumns);
         var csv = new CsvLogger(CsvPath, CsvHeader);
         var monitor = new HardwareMonitor(osc);
+        var ws = new WebSocketBroadcaster(WebSocketHost, WebSocketPort);
 
         monitor.Open();
+        ws.Start();
 
         var stopwatch = new Stopwatch();
 
@@ -41,7 +45,7 @@ class Program
 
             // Broadcast: metrics now holds every reading from this cycle, -1 where a sensor didn't report.
             string json = metrics.ToJson();
-            // TODO: push `json` to the connected websocket clients here.
+            ws.Broadcast(json);
             Logger.Log(json);
 
             Logger.Log($"\nRefreshing in {PollIntervalMs}ms\n" + new string('-', 40));
@@ -52,6 +56,7 @@ class Program
         }
 
         monitor.Close();
+        ws.Stop();
         Logger.Always("Closed.");
     }
 }
