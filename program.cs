@@ -25,12 +25,6 @@ class Program
     static float[,] valueTable = new float [20,5]; // to modify the timeframe of the average, modify the first size of the array
     static int index = 0;
 
-    //index references for the valueTable, to be able to store the values in the correct index of the array
-    static int GPU_FAN_INDEX = 4; // index of the GPU fan in the valueTable
-    static int CPU_FAN_INDEX = 0; // index of the CPU fan in the valueTable
-
-    
-
     static void Main()
     {
         var sender = new UDPSender("127.0.0.1", 7000);
@@ -67,13 +61,12 @@ class Program
                         sub.Update();
                         foreach (var sensor in sub.Sensors)
                         {
-                            var sensorValue = sensor.Value.Value;
                             if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue && sensor.Name == "Temperature #1")
-                                Console.WriteLine($" Temp: {Math.Round(sensorValue, 1)}°C");
+                                Console.WriteLine($" Temp: {Math.Round(sensor.Value.Value, 1)}°C");
                             if (sensor.SensorType == SensorType.Voltage && sensor.Value.HasValue && sensor.Name.Contains("CMOS"))
                             {
-                                Console.WriteLine($" CMOS Battery: {Math.Round(sensorValue, 3)}V");
-                                sender.Send(new OscMessage("/voltage/CMOS", (float)sensorValue));
+                                Console.WriteLine($" CMOS Battery: {Math.Round(sensor.Value.Value, 3)}V");
+                                sender.Send(new OscMessage("/voltage/CMOS", (float)sensor.Value.Value));
                             }
                             if (sensor.SensorType == SensorType.Fan && sensor.Value.HasValue)
                             {
@@ -84,39 +77,36 @@ class Program
                                     "Fan #5" => "CaseFanB",
                                     _ => sensor.Name
                                 };
-
+                                float fanValue = (float)sensor.Value.Value;
                                 if (sensorIndex%valueTable.GetLength(1) == 0){
                                     sensorIndex = 0;
                                 }
                                 
-                                temporaryArrayRPM[sensorIndex] = sensorValue;
+                                temporaryArrayRPM[sensorIndex] = fanValue;
                                 sensorIndex++;
-                                Console.WriteLine($" {label}: {Math.Round(sensorValue, 0)}RPM");
-                                sender.Send(new OscMessage($"/fan/{label}", sensorValue));
+                                Console.WriteLine($" {label}: {Math.Round(fanValue, 0)}RPM");
+                                sender.Send(new OscMessage($"/fan/{label}", fanValue));
                             }
                         }
                     }
                 }
 
-                // CPU sensors
                 if (hardware.HardwareType == HardwareType.Cpu)
                 {
                     Console.WriteLine("CPU");
                     foreach (var sensor in hardware.Sensors)
                     {
-                        var sensorValue = sensor.Value.Value;
                         if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue && sensor.Name.Contains("Tctl"))
-                            Console.WriteLine($" Temperature: {Math.Round(sensorValue, 1)}°C");
+                            Console.WriteLine($" Temperature: {Math.Round(sensor.Value.Value, 1)}°C");
 
                         if (sensor.SensorType == SensorType.Power && sensor.Value.HasValue && sensor.Name.Contains("Package"))
                         {
-                            Console.WriteLine($" Package: {Math.Round(sensorValue, 1)}W");
-                            sender.Send(new OscMessage("/power/CPU", (float)sensorValue));
+                            Console.WriteLine($" Package: {Math.Round(sensor.Value.Value, 1)}W");
+                            sender.Send(new OscMessage("/power/CPU", (float)sensor.Value.Value));
                         }
                     }
                 }
 
-                // GPU sensors, works for either Nvidia or AMD GPUs
                 if (hardware.HardwareType == HardwareType.GpuNvidia || hardware.HardwareType == HardwareType.GpuAmd)
                 {
                     if (!gpuSkipped)
@@ -127,21 +117,20 @@ class Program
                     Console.WriteLine("GPU");
                     foreach (var sensor in hardware.Sensors)
                     {
-                        var sensorValue = sensor.Value.Value;
                         if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue && sensor.Name.Contains("Core"))
-                            Console.WriteLine($" Temperature: {Math.Round(sensorValue, 1)}°C");
+                            Console.WriteLine($" Temperature: {Math.Round(sensor.Value.Value, 1)}°C");
 
                         if (sensor.SensorType == SensorType.Power && sensor.Value.HasValue && sensor.Name.Contains("Package"))
                         {
-                            Console.WriteLine($" Package: {Math.Round(sensorValue, 1)}W");
-                            sender.Send(new OscMessage("/power/GPU", (float)sensorValue));
+                            Console.WriteLine($" Package: {Math.Round(sensor.Value.Value, 1)}W");
+                            sender.Send(new OscMessage("/power/GPU", (float)sensor.Value.Value));
                         }
 
                         if (sensor.SensorType == SensorType.Fan && sensor.Value.HasValue)
                         {
-                            Console.WriteLine($" {sensor.Name}: {Math.Round(sensorValue, 0)}RPM");
-                            sender.Send(new OscMessage($"/fan/GPUFan", (float)sensorValue));
-                            temporaryArrayRPM[GPU_FAN_INDEX] = sensorValue;
+                            Console.WriteLine($" {sensor.Name}: {Math.Round(sensor.Value.Value, 0)}RPM");
+                            sender.Send(new OscMessage($"/fan/GPUFan", (float)sensor.Value.Value));
+                            temporaryArrayRPM[valueTable.GetLength(1) - 1] = sensor.Value.Value; // store GPU fan RPM in the last index of the temporary array
                         }
                     }
                 }
@@ -150,12 +139,11 @@ class Program
                 {
                     foreach (var sensor in hardware.Sensors)
                     {
-                        var sensorValue = sensor.Value.Value;
                         if (sensor.SensorType == SensorType.Temperature && sensor.Value.HasValue && sensor.Name.StartsWith("DIMM"))
                         {
                             string dimmLabel = sensor.Name.Replace(" ", ""); // "DIMM #1" -> "DIMM#1"
-                            Console.WriteLine($"{sensor.Name}: {Math.Round(sensorValue, 1)}°C");
-                            sender.Send(new OscMessage($"/ram/{dimmLabel}", (float)sensorValue));
+                            Console.WriteLine($"{sensor.Name}: {Math.Round(sensor.Value.Value, 1)}°C");
+                            sender.Send(new OscMessage($"/ram/{dimmLabel}", (float)sensor.Value.Value));
                         }
                     }
                 }

@@ -2262,31 +2262,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\alexg\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\Son of SunBlock\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\alexg\\Documents\\GitHub\\SOSBPowerMetrics\\progFiles.csproj",
+      "projectUniqueName": "C:\\Users\\Son of SunBlock\\Documents\\GitHub\\SOSBPowerMetrics\\progFiles.csproj",
       "projectName": "progFiles",
-      "projectPath": "C:\\Users\\alexg\\Documents\\GitHub\\SOSBPowerMetrics\\progFiles.csproj",
-      "packagesPath": "C:\\Users\\alexg\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\alexg\\Documents\\GitHub\\SOSBPowerMetrics\\obj\\",
+      "projectPath": "C:\\Users\\Son of SunBlock\\Documents\\GitHub\\SOSBPowerMetrics\\progFiles.csproj",
+      "packagesPath": "C:\\Users\\Son of SunBlock\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Son of SunBlock\\Documents\\GitHub\\SOSBPowerMetrics\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\alexg\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\Son of SunBlock\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
